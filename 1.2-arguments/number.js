@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const readline = require('readline');
 
 function getRandomNumber(min = 0, max = 100) {
