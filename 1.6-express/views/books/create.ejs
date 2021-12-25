@@ -1,32 +1,75 @@
 <%- include('../partials/layout-start', { title: title }) %>
 <%- include('../partials/menu') %>
   <form
-    method="<%= book.id ? 'PUT' : 'POST' %>"
+    method="POST"
     id="form"
     action="/books/<%= book.id ? `update/${book.id}` : 'create' %>"
     enctype='multipart/form-data'
+    class="container"
   >
-    <input name="id" value="<%= book.id %>" hidden />
-    <input placeholder="Название книги" name="name" value="<%= book.title %>" required />
-    <textarea placeholder="Описание" rows="5" name="description"><%= book.description %></textarea>
-    <div id="authors">
-      <% if (!book.authors) { %>
-        <div>
-          <input placeholder="Автор" name="authors" value="<%= book.authors %>" required />
+    <div class="container">
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label" for="title">Название книги</label>
+          <input class="form-control" name="title" value="<%= book.title %>" required />
         </div>
-      <% } else { %>
-        <% book.authors.map(author => { %>
-          <div>
-            <input placeholder="Автор" name="authors" value="<%= author %>" required />
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label" for="description">Описание</label>
+          <textarea class="form-control" rows="5" name="description"><%= book.description %></textarea>
+        </div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col" id="authors-block">
+          <div class="row mb-2">Авторы</div>
+          <% if (!book.authors) { %>
+            <div class="row mb-2">
+              <div class="col d-flex">
+                <input class="form-control me-2" name="authors" value="<%= book.authors %>" required />
+              </div>
+            </div>
+          <% } else { %>
+            <% book.authors.map(author => { %>
+              <div class="row mb-2">
+                <div class="col d-flex">
+                  <input class="form-control me-2" name="authors" value="<%= author %>" required />
+                </div>
+              </div>
+            <% }); %>
+          <% } %>
+          <div class="row" id="add-author-button-block">
+            <a href="" id="add-author-button">Добавить автора</a>
           </div>
-        <% }); %>
-      <% } %>
+        </div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label" for="fileCover">Файл обложки</label>
+          <input class="form-control" type="file" name="fileCover" placeholder="Обложка" />
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label" for="fileCover">Файл с названием</label>
+          <input class="form-control" type="file" name="fileName" placeholder="Обложка" />
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label" for="fileCover">Файл книги</label>
+          <input class="form-control" type="file" name="fileBook" placeholder="Обложка" />
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col">
+          <button class="btn btn-primary"><%= book.id ? 'Обновить' : 'Создать' %></button>
+        </div>
+      </div>
     </div>
-    <a href="" id="add-author-button">Добавить автора</a>
-    <input type="file" name="fileCover" placeholder="Обложка" />
-    <input type="file" name="fileName" placeholder="Название" />
-    <input type="file" name="fileBook" placeholder="Книга" />
-    <button>Создать!</button>
+    
   </form>
   <script>
     function appendAuthorInput(parent) {
@@ -35,36 +78,45 @@
       newInput.setAttribute('placeholder', 'Автор');
       newInput.setAttribute('name', 'authors');
       newInput.setAttribute('required', true);
+      newInput.className = 'form-control me-2';
       parent.append(newInput);
     }
 
-    function appendAuthorDeleteButton(parent) {
+    function appendAuthorDeleteButton(parent, ancestorToRemove) {
       const newButton = document.createElement('button');
-      newButton.textContent = 'x';
+      newButton.className = 'btn btn-danger';
+      newButton.innerHTML = '<i class="fas fa-times"></>';
 
       newButton.onclick = function(e) {
-        parent.remove();
+        ancestorToRemove.remove();
       }
 
       parent.append(newButton);
     }
 
-    const authorsItems = Array.from(authors.children);
+    const authorsBlock = document.getElementById('authors-block');
+    const authorsItems = Array.from(authorsBlock.children).slice(1, -1);
 
     authorsItems.forEach((item, index) => {
       if (index > 0) {
-        appendAuthorDeleteButton(item);
+        appendAuthorDeleteButton(item.children[0], item);
       }
     });
 
-    var addAuthorButton = document.getElementById('add-author-button');
+    const addAuthorButton = document.getElementById('add-author-button');
+    const addAuthorButtonBlock = document.getElementById('add-author-button-block');
+
     addAuthorButton.onclick = function(e) {
       e.preventDefault();
-      const newEntry = document.createElement('div');
-      appendAuthorInput(newEntry);
-      appendAuthorDeleteButton(newEntry);
+      const newEntryRow = document.createElement('div');
+      newEntryRow.className = 'row mb-2';
+      const newEntryCol = document.createElement('div');
+      newEntryCol.className = 'col d-flex';
+      newEntryRow.append(newEntryCol);
+      appendAuthorInput(newEntryCol);
+      appendAuthorDeleteButton(newEntryCol, newEntryRow);
 
-      authors.append(newEntry);
+      addAuthorButtonBlock.before(newEntryRow);
     }
   </script>
 <%- include('../partials/layout-end') %>
