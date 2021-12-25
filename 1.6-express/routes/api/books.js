@@ -3,27 +3,13 @@ const path = require('path');
 const { v4: uuid } = require('uuid');
 const _ = require('lodash');
 const { NotFoundError } = require('../../errors');
-const upload = require('./multer');
+const { parseBookDataFromReq } = require('../../utils');
+const { uploadBookFileFields } = require('../../middleware');
 
 const router = express.Router();
-const bookFields = ['title', 'description', 'authors', 'favourite', 'fileCover', 'fileName'];
 
-let book = [];
-
-function parseBookDataFromReq(req) {
-  const res = _.pick(req.body, bookFields);
-
-  // In form data "authors" field is a JSON string, it is not automatically parsed
-  if ('authors' in res && typeof res.authors === 'string') {
-    res.authors = JSON.parse(res.authors);
-  }
-
-  if (req.file) {
-    res.fileBook = req.file.filename;
-  }
-
-  return res;
-}
+let books = require('../../books.json'); // TODO: No commit
+// let books = []; // TODO: Uncomment and commit
 
 function send404(err, res) {
   res.status(404);
@@ -34,14 +20,14 @@ router.get('/', (__, res) => {
   res.send(books);
 });
 
-router.post('/', upload.single('fileBook'), (req, res) => {
+router.post('/', uploadBookFileFields, (req, res) => {
   const newBook = { id: uuid(), ...parseBookDataFromReq(req) };
 
   books.push(newBook);
   res.send(newBook);
 });
 
-router.put('/:id', upload.single('fileBook'), (req, res) => {
+router.put('/:id', uploadBookFileFields, (req, res) => {
   const { id } = req.params;
   const target = books.find(book => book.id === id);
 

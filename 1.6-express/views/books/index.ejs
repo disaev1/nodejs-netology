@@ -1,0 +1,8 @@
+<%- include('../partials/layout-start', { title: title }) %>
+<%- include('../partials/menu') %>
+  <% books.map((book) => { %>
+    <div>
+      <a href="<%= `/books/${book.id}` %>"><%= book.title %></a>
+    </div>
+  <% }); %>
+<%- include('../partials/layout-end') %>

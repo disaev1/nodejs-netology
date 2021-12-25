@@ -1,0 +1,70 @@
+<%- include('../partials/layout-start', { title: title }) %>
+<%- include('../partials/menu') %>
+  <form
+    method="<%= book.id ? 'PUT' : 'POST' %>"
+    id="form"
+    action="/books/<%= book.id ? `update/${book.id}` : 'create' %>"
+    enctype='multipart/form-data'
+  >
+    <input name="id" value="<%= book.id %>" hidden />
+    <input placeholder="Название книги" name="name" value="<%= book.title %>" required />
+    <textarea placeholder="Описание" rows="5" name="description"><%= book.description %></textarea>
+    <div id="authors">
+      <% if (!book.authors) { %>
+        <div>
+          <input placeholder="Автор" name="authors" value="<%= book.authors %>" required />
+        </div>
+      <% } else { %>
+        <% book.authors.map(author => { %>
+          <div>
+            <input placeholder="Автор" name="authors" value="<%= author %>" required />
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+    <a href="" id="add-author-button">Добавить автора</a>
+    <input type="file" name="fileCover" placeholder="Обложка" />
+    <input type="file" name="fileName" placeholder="Название" />
+    <input type="file" name="fileBook" placeholder="Книга" />
+    <button>Создать!</button>
+  </form>
+  <script>
+    function appendAuthorInput(parent) {
+      const newInput = document.createElement('input');
+
+      newInput.setAttribute('placeholder', 'Автор');
+      newInput.setAttribute('name', 'authors');
+      newInput.setAttribute('required', true);
+      parent.append(newInput);
+    }
+
+    function appendAuthorDeleteButton(parent) {
+      const newButton = document.createElement('button');
+      newButton.textContent = 'x';
+
+      newButton.onclick = function(e) {
+        parent.remove();
+      }
+
+      parent.append(newButton);
+    }
+
+    const authorsItems = Array.from(authors.children);
+
+    authorsItems.forEach((item, index) => {
+      if (index > 0) {
+        appendAuthorDeleteButton(item);
+      }
+    });
+
+    var addAuthorButton = document.getElementById('add-author-button');
+    addAuthorButton.onclick = function(e) {
+      e.preventDefault();
+      const newEntry = document.createElement('div');
+      appendAuthorInput(newEntry);
+      appendAuthorDeleteButton(newEntry);
+
+      authors.append(newEntry);
+    }
+  </script>
+<%- include('../partials/layout-end') %>

@@ -1,0 +1,6 @@
+<%- include('../partials/layout-start', { title: title }) %>
+<%- include('../partials/menu') %>
+  <div>Название: <%= book.title %></div>
+  <div>Описание: <%= book.description %></div>
+  <div>Авторы: <%= book.authors.join(', ') %></div>
+<%- include('../partials/layout-end') %>
