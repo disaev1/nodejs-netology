@@ -8,24 +8,10 @@ const { uploadBookFileFields } = require('../middleware');
 const router = express.Router();
 const backToBooksLink = { to: '/books', title: 'К списку', icon: 'arrow-left' };
 
-let books = require('../books.json'); // TODO: No commit
-// let books = []; // TODO: Uncomment and commit
+let books = require('../books');
 
 router.get('/', (__, res) => {
   res.render('books/index', { title: 'Главная', books, link: false });
-});
-
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const target = books.find(book => book.id === id);
-
-  if (target) {
-    res.render('books/view', { title: 'Информация о книге', book: target, link: backToBooksLink });
-
-    return;
-  }
-
-  throw new NotFoundError(`There is no book with id = ${id}!`);
 });
 
 router.get('/create', (__, res) => {
@@ -67,10 +53,20 @@ router.get('/update/:id', (req, res) => {
   console.log('edit book', target);
 
   if (target) {
-    res.render(
-      'books/create',
-      { title: 'Редактировать книгу', book: target, link: backToBooksLink }
-    );
+    res.render('books/create', { title: 'Редактировать книгу', book: target, link: backToBooksLink });
+
+    return;
+  }
+
+  throw new NotFoundError(`There is no book with id = ${id}!`);
+});
+
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  const target = books.find(book => book.id === id);
+
+  if (target) {
+    res.render('books/view', { title: 'Информация о книге', book: target, link: backToBooksLink });
 
     return;
   }
@@ -80,7 +76,7 @@ router.get('/update/:id', (req, res) => {
 
 router.use((err, __, res, ___) => {
   if (err instanceof NotFoundError) {
-    return res.render('not-found');
+    return res.render('not-found', { link: false });
   }
   
   res.status(500).send({ status: 'error', message: err.message });

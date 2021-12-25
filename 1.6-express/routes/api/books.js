@@ -8,8 +8,7 @@ const { uploadBookFileFields } = require('../../middleware');
 
 const router = express.Router();
 
-let books = require('../../books.json'); // TODO: No commit
-// let books = []; // TODO: Uncomment and commit
+let books = require('../../books');
 
 function send404(err, res) {
   res.status(404);
