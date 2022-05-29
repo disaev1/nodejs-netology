@@ -1,26 +1,57 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { Book } from './entities/book.entity';
 
 @Injectable()
 export class BooksService {
-  create(createBookDto: CreateBookDto) {
-    return 'This action adds a new book';
+  private books: Book[] = [];
+  
+  generateId(): string {
+    return Math.random().toString(16).slice(2, 8);
   }
 
-  findAll() {
-    return `This action returns all books`;
+  create(createBookDto: CreateBookDto): Book {
+    const newBook: Book = { ...createBookDto, id: this.generateId() };
+    this.books.push(newBook);
+
+    return newBook;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} book`;
+  findAll(): Book[] {
+    return this.books;
   }
 
-  update(id: number, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
+  findOne(id: string): Book {
+    const target: Book = this.books.find(book => book.id === id);
+
+    return target || null;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} book`;
+  update(id: string, updateBookDto: UpdateBookDto): Book {
+    let updatedBook: Book = null;
+
+    this.books = this.books.map(book => {
+      if (book.id === id) {
+        updatedBook = { ...updateBookDto, id: book.id };
+
+        return updatedBook;
+      }
+      return book;
+    });
+
+    return updatedBook;
+  }
+
+  remove(id: string): boolean {
+    const target: Book = this.books.find(book => book.id === id);
+
+    if (!target) {
+      return false;
+    }
+
+    this.books = this.books.filter(book => book.id !== id);
+
+    return true;
   }
 }
