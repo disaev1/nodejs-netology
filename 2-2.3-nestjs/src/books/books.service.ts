@@ -2,17 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class BooksService {
   private books: Book[] = [];
-  
-  generateId(): string {
-    return Math.random().toString(16).slice(2, 8);
-  }
 
   create(createBookDto: CreateBookDto): Book {
-    const newBook: Book = { ...createBookDto, id: this.generateId() };
+    const newBook: Book = { ...createBookDto, id: uuid() };
     this.books.push(newBook);
 
     return newBook;
