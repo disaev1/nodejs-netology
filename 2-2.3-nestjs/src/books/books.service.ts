@@ -1,53 +1,45 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './entities/book.entity';
+import { Book, BookDocument } from './schemas/book.schema';
+import { Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class BooksService {
-  private books: Book[] = [];
+  constructor(@InjectModel(Book.name) private readonly BookModel: Model<BookDocument>) {}
 
-  create(createBookDto: CreateBookDto): Book {
-    const newBook: Book = { ...createBookDto, id: uuid() };
-    this.books.push(newBook);
+  public create(createBookDto: CreateBookDto): Promise<BookDocument> {
+    const newBook: BookDocument = new this.BookModel({ ...createBookDto, id: uuid() });
 
-    return newBook;
+    return newBook.save();
   }
 
-  findAll(): Book[] {
-    return this.books;
+  public async findAll(): Promise<BookDocument[]> {
+    const books: BookDocument[] = await this.BookModel.find();
+
+    return books;
   }
 
-  findOne(id: string): Book {
-    const target: Book = this.books.find(book => book.id === id);
+  async findOne(id: string): Promise<BookDocument> {
+    const target: BookDocument = await this.BookModel.findOne({ id });
 
     return target || null;
   }
 
-  update(id: string, updateBookDto: UpdateBookDto): Book {
-    let updatedBook: Book = null;
+  public async update(id: string, updateBookDto: UpdateBookDto): Promise<BookDocument> {
+    const updatedBook: BookDocument = await this.BookModel.findOneAndUpdate({ id }, updateBookDto);
 
-    this.books = this.books.map(book => {
-      if (book.id === id) {
-        updatedBook = { ...updateBookDto, id: book.id };
-
-        return updatedBook;
-      }
-      return book;
-    });
-
-    return updatedBook;
+    return updatedBook || null;
   }
 
-  remove(id: string): boolean {
-    const target: Book = this.books.find(book => book.id === id);
+  public async remove(id: string): Promise<boolean> {
+    const target: Book = await this.BookModel.findOneAndRemove({ id });
 
     if (!target) {
       return false;
     }
-
-    this.books = this.books.filter(book => book.id !== id);
 
     return true;
   }
