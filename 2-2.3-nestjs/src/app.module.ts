@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { BooksModule } from './books/books.module';
 import { MongooseModule } from '@nestjs/mongoose';
 
-const MONGO_DB_URL: string = process.env.MONGO_DB_URL || 'mongodb://db:27017/test';
+const MONGO_DB_URL: string = process.env.MONGO_DB_URL || 'mongodb://localhost:27017/test';
 
 @Module({
   imports: [BooksModule, MongooseModule.forRoot(MONGO_DB_URL)],
