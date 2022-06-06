@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './entities/book.entity';
+import { BookDocument } from './schemas/book.schema';
 import { notFoundMessage, deletedMessage } from './books.utils';
 
 @Controller('books')
@@ -10,18 +10,18 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
-  create(@Body() createBookDto: CreateBookDto): Book {
+  create(@Body() createBookDto: CreateBookDto): Promise<BookDocument> {
     return this.booksService.create(createBookDto);
   }
 
   @Get()
-  findAll(): Book[] {
-    return this.booksService.findAll();
+  async findAll(): Promise<BookDocument[]> {
+    return await this.booksService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Book {
-    const target = this.booksService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<BookDocument> {
+    const target: BookDocument = await this.booksService.findOne(id);
 
     if (!target) {
       throw new HttpException({ status: HttpStatus.NOT_FOUND, message: notFoundMessage(id) }, HttpStatus.NOT_FOUND);
@@ -31,8 +31,8 @@ export class BooksController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto): Book {
-    const updated: Book = this.booksService.update(id, updateBookDto);
+  async update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto): Promise<BookDocument> {
+    const updated: BookDocument = await this.booksService.update(id, updateBookDto);
 
     if (!updated) {
       throw new HttpException({ status: HttpStatus.NOT_FOUND, message: notFoundMessage(id) }, HttpStatus.NOT_FOUND);
@@ -42,8 +42,8 @@ export class BooksController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): void {
-    const result: boolean =  this.booksService.remove(id);
+  async remove(@Param('id') id: string): Promise<void> {
+    const result: boolean = await this.booksService.remove(id);
 
     if (!result) {
       throw new HttpException({ status: HttpStatus.NOT_FOUND, message: notFoundMessage(id) }, HttpStatus.NOT_FOUND);
