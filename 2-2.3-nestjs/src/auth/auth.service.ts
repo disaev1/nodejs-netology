@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { User } from '../users/schemas/user.schema';
-import { UsersService, UserData } from '../users/users.service';
+import { UsersService, UserData, validateUserPassword } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 
 export interface SigninResponse {
@@ -21,9 +21,10 @@ export class AuthService {
   
   public async validateUser(email: string, pass: string): Promise<User> {
     const user: User = await this.usersService.getUserByEmail(email);
+    const passwordValidated = await validateUserPassword(user, pass)
 
     // TODO Make proper hashed password check
-    if (user && user.password === pass) {
+    if (user && passwordValidated) {
       const { password, ...result } = user;
 
       return result as User;
