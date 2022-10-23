@@ -1,12 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UsePipes, UseInterceptors } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BookDocument } from './schemas/book.schema';
 import { notFoundMessage, deletedMessage } from './books.utils';
 import { CreateBookValidationPipe } from './books.create-book-validation-pipe';
+import { ResultInterceptor } from '../app.interceptor';
 
 @Controller('books')
+@UseInterceptors(new ResultInterceptor())
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
