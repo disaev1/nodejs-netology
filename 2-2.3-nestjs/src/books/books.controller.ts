@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UsePipes, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UsePipes, UseGuards, UseInterceptors } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BookDocument } from './schemas/book.schema';
 import { notFoundMessage, deletedMessage } from './books.utils';
 import { CreateBookValidationPipe } from './books.create-book-validation-pipe';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ResultInterceptor } from '../app.interceptor';
 
 @Controller('books')
@@ -14,6 +15,7 @@ export class BooksController {
 
   @Post()
   @UsePipes(new CreateBookValidationPipe())
+  @UseGuards(JwtAuthGuard)
   create(@Body() createBookDto: CreateBookDto): Promise<BookDocument> {
     return this.booksService.create(createBookDto);
   }
@@ -35,6 +37,7 @@ export class BooksController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto): Promise<BookDocument> {
     const updated: BookDocument = await this.booksService.update(id, updateBookDto);
 
@@ -46,13 +49,14 @@ export class BooksController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
+  @UseGuards(JwtAuthGuard)
+  async remove(@Param('id') id: string): Promise<string> {
     const result: boolean = await this.booksService.remove(id);
 
     if (!result) {
       throw new HttpException({ status: HttpStatus.NOT_FOUND, message: notFoundMessage(id) }, HttpStatus.NOT_FOUND);
     }
 
-    throw new HttpException({ status:  HttpStatus.OK, message: deletedMessage(id) }, HttpStatus.OK);
+    return deletedMessage(id);
   }
 }
