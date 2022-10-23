@@ -23,7 +23,6 @@ export class AuthService {
     const user: User = await this.usersService.getUserByEmail(email);
     const passwordValidated = await validateUserPassword(user, pass)
 
-    // TODO Make proper hashed password check
     if (user && passwordValidated) {
       const { password, ...result } = user;
 
